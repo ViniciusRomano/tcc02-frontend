@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard">
+    <dashboard-info-block /> 
     <dashboard-charts />
-    <dashboard-info-block />
 
   </div>
 </template>

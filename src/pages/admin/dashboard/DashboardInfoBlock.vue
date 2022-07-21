@@ -2,21 +2,17 @@
   <div class="row row-equal">
     <div class="flex xl6 xs12">
       <div class="row">
-        <div
-          class="flex xs12 sm4"
-          v-for="(info, idx) in infoTiles"
-          :key="idx"
-        >
+        <div class="flex xs12 sm4" v-for="(info, idx) in infoTiles" :key="idx">
           <va-card class="mb-4" :color="info.color">
             <va-card-content>
               <p class="display-2 mb-0" style="color: white;">{{ info.value }}</p>
-              <p style="color: white;">{{$t('dashboard.info.' + info.text)}}</p>              
+              <p style="color: white;">{{ $t(info.text) }}</p>
             </va-card-content>
           </va-card>
         </div>
       </div>
 
-      <div class="row">
+      <!-- <div class="row">
         <div class="flex xs12 md6">
           <va-card>
             <va-card-content>
@@ -46,13 +42,14 @@
 
           </va-card>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <va-modal v-model="modal">
       <div style="position: relative;">
-        <va-button @click="showPrevImage" color="#fff" icon="chevron-left" flat style="position: absolute; top: 50%;"/>
-        <va-button @click="showNextImage" color="#fff" icon="chevron-right" flat style="position: absolute; top: 50%; right: 0;"/>
+        <va-button @click="showPrevImage" color="#fff" icon="chevron-left" flat style="position: absolute; top: 50%;" />
+        <va-button @click="showNextImage" color="#fff" icon="chevron-right" flat
+          style="position: absolute; top: 50%; right: 0;" />
         <transition>
           <img :src="images[currentImageIndex]" style="height: 50vh; max-width: 100%;">
         </transition>
@@ -63,25 +60,27 @@
 
 <script>
 import { useGlobalConfig } from 'vuestic-ui'
+import { getInfoBlockData } from '@/data/charts/InfoBlocks'
+import { socket } from '../../../services/vuestic-ui/socket'
 
 export default {
   name: 'DashboardInfoBlock',
-  data () {
+  data() {
     return {
       infoTiles: [{
-        color: 'success',
-        value: '803',
-        text: 'commits',
+        color: 'primary',
+        value: '3.4A',
+        text: 'Média das últimas 24h',
         icon: '',
       }, {
-        color: 'danger',
-        value: '57',
-        text: 'components',
+        color: 'primary',
+        value: '3.5A',
+        text: 'Média dos últimos 30min',
         icon: '',
       }, {
-        color: 'info',
-        value: '5',
-        text: 'teamMembers',
+        color: '',
+        value: '',
+        text: 'Tendência',
         icon: '',
       }],
       modal: false,
@@ -95,14 +94,34 @@ export default {
       ],
     }
   },
+  async mounted() {
+    const _this = this;
+    socket.on('AVG_SensorValue', function (msg) {
+      _this.update(msg)
+    });
+  },
   methods: {
-    showModal () {
+    showModal() {
       this.modal = true
     },
-    showPrevImage () {
+    async update(msg) {
+      const data = msg || await getInfoBlockData()
+      this.infoTiles[0].value = data.day + ' A'
+      this.infoTiles[1].value = data.mins + ' A'
+
+      if (this.infoTiles[0].value < this.infoTiles[1].value) {
+        this.infoTiles[2].value = 'Aumento de corrente'
+        this.infoTiles[2].color = 'danger'
+      } else {
+        this.infoTiles[2].value = 'Diminuição da corrente'
+        this.infoTiles[2].color = 'success'
+      }
+
+    },
+    showPrevImage() {
       this.currentImageIndex = !this.currentImageIndex ? this.images.length - 1 : this.currentImageIndex - 1
     },
-    showNextImage () {
+    showNextImage() {
       this.currentImageIndex = this.currentImageIndex === this.images.length - 1 ? 0 : this.currentImageIndex + 1
     },
   },
@@ -115,39 +134,44 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .row-separated {
-    .flex + .flex {
-      border-left: 1px solid var(--va-background);
-    }
+.row-separated {
+  .flex+.flex {
+    border-left: 1px solid var(--va-background);
+  }
 
-    // @include media-breakpoint-down(xs) {
-    //   p:not(.display-2) {
-    //     font-size: 0.875rem;
-    //   }
+  // @include media-breakpoint-down(xs) {
+  //   p:not(.display-2) {
+  //     font-size: 0.875rem;
+  //   }
+  // }
+}
+
+.rich-theme-card-text {
+  line-height: 24px;
+}
+
+.dashboard {
+  .tendencia {
+    font-size: 24px;
+  }
+
+  .va-card__header--over {
+    // @include media-breakpoint-up(md) {
+    //   padding-top: 0 !important;
     // }
   }
 
-  .rich-theme-card-text {
-    line-height: 24px;
-  }
-
-  .dashboard {
-    .va-card__header--over {
-      // @include media-breakpoint-up(md) {
-      //   padding-top: 0 !important;
-      // }
-    }
-
-    .va-card__image {
-      // @include media-breakpoint-up(md) {
-      //   padding-bottom: 0 !important;
-      // }
-    }
-    // .image-card {
-    //   position: relative;
-    //   .va-button {
-    //     position: absolute;
-    //   }
+  .va-card__image {
+    // @include media-breakpoint-up(md) {
+    //   padding-bottom: 0 !important;
     // }
   }
+
+  // .image-card {
+  //   position: relative;
+  //   .va-button {
+  //     position: absolute;
+  //   }
+  // }
+}
 </style>
