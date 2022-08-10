@@ -7,7 +7,8 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import vuesticGlobalConfig from './services/vuestic-ui/global-config'
-
+import Datepicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 const i18nConfig = {
   locale: 'en',
@@ -32,6 +33,7 @@ if (process.env.VUE_APP_GTM_ENABLED === 'true') {
   }
   app.use(createGtm(gtmConfig))
 }
+app.component('Datepicker', Datepicker);
 app.use(createI18n(i18nConfig))
 app.use(VuesticPlugin, vuesticGlobalConfig)
 app.mount('#app')

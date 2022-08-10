@@ -9,10 +9,10 @@ export default [
     ],
   },
   {
-    categoryName: 'Statistics',
+    categoryName: 'Relatórios',
     items: [
       {
-        itemName: 'Charts',
+        itemName: 'Consumo',
         itemLink: '/admin/statistics/charts',
       },
       {
