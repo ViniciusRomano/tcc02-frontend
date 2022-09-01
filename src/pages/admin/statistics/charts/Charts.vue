@@ -22,6 +22,29 @@
         </va-card>
       </div>
     </div> -->
+    <div class="d-flex mb-3">
+      <va-button size="medium" @click="setDate('HOUR')" color="dark" class="mr-2">
+        {{ 'Última Hora' }}
+      </va-button>
+      <va-button size="medium" @click="setDate('TODAY')" color="dark" class="mr-2">
+        {{ 'Hoje' }}
+      </va-button>
+      <va-button size="medium" @click="setDate('7_DAYS')" color="dark" class="mr-2">
+        {{ 'Últimos 7 dias' }}
+      </va-button>
+      <va-button size="medium" @click="setDate('15_DAYS')" color="dark" class="mr-2">
+        {{ 'Últimos 15 dias' }}
+      </va-button>
+      <va-button size="medium" @click="setDate('30_DAYS')" color="dark" class="mr-2">
+        {{ 'Últimos 30 dias' }}
+      </va-button>
+      <va-button size="medium" @click="setDate('90_DAYS')" color="dark" class="mr-2">
+        {{ 'Últimos 90 dias' }}
+      </va-button>
+    </div>
+
+
+
 
     <Datepicker locale="pt-BR" cancelText="Cancelar" selectText="Selecionar" class="mb-4" v-model="date" modelAuto range
       enterSubmit :format="'dd/MM/yyyy HH:mm'" @update:modelValue="refreshData" />
@@ -29,10 +52,10 @@
     </div> -->
 
     <div class="row">
-      <div class="flex xs12 sm3" v-for="(info, idx) in infoTiles" :key="idx">
+      <div class="flex xs12 sm2" v-for="(info, idx) in infoTiles" :key="idx">
         <va-card class="mb-4" :color="info.color">
           <va-card-content>
-            <p class="display-2 mb-0" style="color: white;">{{ info.value }}</p>
+            <p class="display-3 mb-0" style="color: white;">{{ info.value }}</p>
             <p style="color: white;">{{ $t(info.text) }}</p>
           </va-card-content>
         </va-card>
@@ -117,12 +140,12 @@ export default {
       infoTiles: [{
         color: 'primary',
         value: '',
-        text: 'Média no período selecionado',
+        text: 'Média',
         icon: '',
       }, {
         color: 'primary',
         value: '',
-        text: 'Mediana no período selecionado',
+        text: 'Mediana',
         icon: '',
       }, {
         color: 'primary',
@@ -133,6 +156,18 @@ export default {
         color: 'primary',
         value: '',
         text: 'Medição máxima',
+        icon: '',
+      },
+      {
+        color: 'primary',
+        value: '',
+        text: 'Potência Média',
+        icon: '',
+      },
+      {
+        color: 'primary',
+        value: '',
+        text: 'Valor Gasto (R$)',
         icon: '',
       }
       ],
@@ -146,8 +181,8 @@ export default {
     this.verticalBarChartData = getVerticalBarChartData(this.theme)
     this.horizontalBarChartData = getHorizontalBarChartData(this.theme)
 
-    const startDate = new Date();
-    const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
+    const endDate = new Date();
+    const startDate = new Date(new Date().setDate(endDate.getDate() - 7));
 
     this.date = [startDate, endDate];
 
@@ -168,12 +203,52 @@ export default {
       const data = await getLineChartData(this.theme, myDate)
       this.lineChartData = data.generatedData;
       this.data = data.data;
-      this.infoTiles[0].value = this.data.avg
-      this.infoTiles[1].value = this.data.median
-      this.infoTiles[2].value = this.data.min
-      this.infoTiles[3].value = this.data.max
+      this.infoTiles[0].value = this.data.avg ? `${this.data.avg} A` : '-'
+      this.infoTiles[1].value = this.data.median ? `${this.data.median} A` : '-'
+      this.infoTiles[2].value = this.data.min ? `${this.data.min} A` : '-'
+      this.infoTiles[3].value = this.data.max ? `${this.data.max} A` : '-'
+
+      const priceKWH = 2.08;
+      const potenciaMedia = (this.data.avg * 127) / 1000      
+      const price = ((potenciaMedia * this.data.hours) * priceKWH).toLocaleString('pt-BR', { minimumFractionDigits: 2 , style: 'currency', currency: 'BRL' })
+
+      this.infoTiles[4].value = this.data.avg ? `${parseFloat(potenciaMedia.toFixed(2))} kW` : '-'
+      this.infoTiles[5].value = price ? `${price}` : '-'
 
     },
+    async setDate(value) {
+      const endDate = new Date();
+      let startDate;
+      switch (value) {
+        case 'HOUR':
+          startDate = new Date();
+          startDate.setHours(startDate.getHours() - 1);
+          break;
+        case 'TODAY':
+          this.date = endDate
+          return;
+          break;
+        case '7_DAYS':
+          startDate = new Date(new Date().setDate(endDate.getDate() - 7));
+          break;
+        case '15_DAYS':
+          startDate = new Date(new Date().setDate(endDate.getDate() - 15));
+          break;
+        case '30_DAYS':
+          startDate = new Date(new Date().setDate(endDate.getDate() - 30));
+          break;
+        case '90_DAYS':
+          startDate = new Date(new Date().setDate(endDate.getDate() - 90));
+          break;
+
+        default:
+          break;
+      }
+
+      this.date = [startDate, endDate];
+      this.refreshData()
+    },
+
   },
 
 }

@@ -37,10 +37,10 @@ export const getLineChartData = async (themes: ColorThemes, myDate: JSON) => {
     date: myDate
   });
 
-  if(!data.values) data.values = []
+  let values = data.values?.values || []
 
-  const xValues = data.values.map((value: any, idx: number) => {
-    return idx;
+  const xValues = values.map((value: any, idx: number) => {
+    return moment(value.createdat).format('DD/MM HH:mm');
   });
 
   generatedData = {
@@ -50,12 +50,12 @@ export const getLineChartData = async (themes: ColorThemes, myDate: JSON) => {
         label: "Sensor 1",
         backgroundColor: colorToRgba(themes.primary, 0.6),
         borderColor: "transparent",
-        data: data.values.map((value: any) => {
-          return value.toFixed(2);
+        data: values.map((value: any) => {
+          return value.sv_value.toFixed(2);
         })
       }
     ]
   };
 
-  return {generatedData,data};
+  return { generatedData, data };
 };
