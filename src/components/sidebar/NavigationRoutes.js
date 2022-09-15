@@ -24,6 +24,20 @@ export default {
           displayName: 'menu.charts',
         }
       ],
+    },
+    {
+      name: 'tables',
+      displayName: 'menu.tables',
+      meta: {
+        icon: 'vuestic-iconset-tables',
+      },
+      disabled: true,
+      children: [
+        {
+          name: 'markup',
+          displayName: 'Dispositivos',
+        }
+      ],
     }
   ],
 }

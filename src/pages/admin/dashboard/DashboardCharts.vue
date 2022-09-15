@@ -2,6 +2,7 @@
   <div class="row row-equal">
     <div class="flex md8">
       <va-card v-if="lineChartData">
+        <va-input type="number" v-model="simulateValue" placeholder="SimularValor" />
         <va-card-title>
           <h1>Monitor em tempo real</h1>
           <div class="mr-0 text-right">
@@ -65,6 +66,7 @@ export default {
   components: { DashboardContributorsChart, VaChart },
   data() {
     return {
+      simulateValue:5,
       lineChartData: null,
       donutChartData: null,
       lineChartFirstMonthIndex: 0,
@@ -77,7 +79,7 @@ export default {
     this.donutChartData = getDonutChartData(this.theme)
 
     socket.on('CREATE_SensorValue', function (msg) {
-      _this.insertNewValue(msg.formatedValue)
+      _this.insertNewValue(msg.formatedValue, msg.deviceName)
     });
 
     setInterval(() => {
@@ -103,7 +105,7 @@ export default {
   },
   methods: {
     async createValue() {
-      await simulateCreateData()
+      await simulateCreateData(this.simulateValue)
       //this.refreshValues()
     },
     async changeStatusSimulate() {
@@ -112,9 +114,12 @@ export default {
     async refreshValues() {
       this.lineChartData = await getLineChartData(this.theme)
     },
-    insertNewValue(value) {
+    insertNewValue(value, label) {
       let cloneData = { ...this.lineChartData }
       let dataset = { ...cloneData.datasets[0] };
+
+      debugger;
+      if (label) dataset.label = label;
 
       dataset.data = dataset.data.slice(1).concat([value])
       cloneData.datasets = [dataset]

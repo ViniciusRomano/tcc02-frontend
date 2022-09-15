@@ -44,10 +44,19 @@
     </div>
 
 
+    <div class="row">
+      <div class="flex xs6">
+        <va-select :label="'Equipamentos'" v-model="device" textBy="dev_name" track-by="id" :options="devices" />
+      </div>
+      <div class="flex xs6">
+        <Datepicker locale="pt-BR" cancelText="Cancelar" selectText="Selecionar" class="mb-4" v-model="date" modelAuto
+          range enterSubmit :format="'dd/MM/yyyy HH:mm'" @update:modelValue="refreshData" />
+      </div>
 
 
-    <Datepicker locale="pt-BR" cancelText="Cancelar" selectText="Selecionar" class="mb-4" v-model="date" modelAuto range
-      enterSubmit :format="'dd/MM/yyyy HH:mm'" @update:modelValue="refreshData" />
+    </div>
+
+
     <!-- <div class="row">
     </div> -->
 
@@ -122,6 +131,7 @@ import { getVerticalBarChartData } from '@/data/charts/VerticalBarChartData'
 import { getHorizontalBarChartData } from '@/data/charts/HorizontalBarChartData'
 import { useGlobalConfig } from 'vuestic-ui'
 import moment from "moment";
+import { getDevices } from '@/data/charts/Devices'
 
 export default {
   name: 'charts',
@@ -130,6 +140,8 @@ export default {
     return {
       date: null,
       data: { count: 0 },
+      device: null,
+      devices: {},
       bubbleChartData: null,
       lineChartData: null,
       pieChartData: null,
@@ -174,6 +186,7 @@ export default {
     }
   },
   async mounted() {
+    this.devices = await getDevices()
     this.isMounted = true
     this.bubbleChartData = getBubbleChartData(this.theme)
     this.pieChartData = getPieChartData(this.theme)
@@ -200,7 +213,8 @@ export default {
   methods: {
     async refreshData() {
       const myDate = this.date[0] ? { dateInit: moment(this.date[0]).format('YYYY-MM-DD HH:mm:ss'), dateEnd: moment(this.date[1]).format('YYYY-MM-DD HH:mm:ss') } : { date: moment(this.date).format('YYYY-MM-DD') };
-      const data = await getLineChartData(this.theme, myDate)
+      console.log(this.device)
+      const data = await getLineChartData(this.theme, myDate, this.device.id)
       this.lineChartData = data.generatedData;
       this.data = data.data;
       this.infoTiles[0].value = this.data.avg ? `${this.data.avg} A` : '-'
@@ -209,8 +223,8 @@ export default {
       this.infoTiles[3].value = this.data.max ? `${this.data.max} A` : '-'
 
       const priceKWH = 2.08;
-      const potenciaMedia = (this.data.avg * 127) / 1000      
-      const price = ((potenciaMedia * this.data.hours) * priceKWH).toLocaleString('pt-BR', { minimumFractionDigits: 2 , style: 'currency', currency: 'BRL' })
+      const potenciaMedia = (this.data.avg * 127) / 1000
+      const price = ((potenciaMedia * this.data.hours) * priceKWH).toLocaleString('pt-BR', { minimumFractionDigits: 2, style: 'currency', currency: 'BRL' })
 
       this.infoTiles[4].value = this.data.avg ? `${parseFloat(potenciaMedia.toFixed(2))} kW` : '-'
       this.infoTiles[5].value = price ? `${price}` : '-'

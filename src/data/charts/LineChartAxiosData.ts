@@ -42,17 +42,21 @@ export const getLineChartData = async (
     filter: { limit: 10, order: "id DESC" }
   });
 
+  const device = data[0].device?.dev_name || "Equipamento não identificado";
+
   data = data.reverse();
 
   const xValues = data.map((value: any) => {
     return value.id;
   });
 
+  debugger;
+
   generatedData = {
     labels: xValues.splice(firstMonthIndex, size),
     datasets: [
       {
-        label: "Sensor 1",
+        label: device,
         backgroundColor: colorToRgba(themes.primary, 0.6),
         borderColor: "transparent",
         data: data.map((value: any) => {
@@ -65,7 +69,9 @@ export const getLineChartData = async (
   return generatedData;
 };
 
-export const simulateCreateData = async () => {
-  const sv_value = Math.random() * 5 + 1;
+export const simulateCreateData = async (value:any) => {
+  console.log(value)
+  debugger;
+  const sv_value = (Math.random() * 0.1) + +value ;
   return customPost("sensor-values", { sv_value });
 };

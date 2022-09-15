@@ -45,6 +45,18 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
+        name: 'crud',
+        path: 'crud',
+        component: RouteViewComponent,
+        children: [
+          {
+            name: 'device',
+            path: 'device',
+            component: () => import('@/pages/admin/crud/device.vue'),
+          }        
+        ],
+      },
+      {
         name: 'forms',
         path: 'forms',
         component: RouteViewComponent,

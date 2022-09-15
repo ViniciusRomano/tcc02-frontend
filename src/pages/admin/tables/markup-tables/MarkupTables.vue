@@ -1,6 +1,15 @@
 <template>
+
+  <div class="row row-equal justify--end">
+    <div class="flex my-2 mr-4">
+      <va-button @click="createNew()" size="medium">
+      {{ 'Novo registro' }}
+    </va-button>
+    </div>
+  </div>
+
   <div class="markup-tables flex">
-    <va-card :title="$t('tables.basic')" class="flex mb-4">
+    <!-- <va-card :title="$t('tables.basic')" class="flex mb-4">
       <va-card-content>
         <div class="table-wrapper">
           <table class="va-table">
@@ -14,7 +23,7 @@
             </thead>
 
             <tbody>
-              <tr v-for="user in users" :key="user.id">
+              <tr v-for="user in devices" :key="user.id">
                 <td>{{ user.name }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.country }}</td>
@@ -29,33 +38,39 @@
         </div>
       </va-card-content>
     </va-card>
-  
+   -->
     <va-card :title="$t('tables.stripedHoverable')">
       <va-card-content>
         <div class="table-wrapper">
           <table class="va-table va-table--striped va-table--hoverable">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Country</th>
-                <th>Status</th>
+                <th>Dispositivo</th>
+                <th>Medição min (A)</th>
+                <th>Medição max (A)</th>
+                <th></th>
+                <th></th>
               </tr>
             </thead>
 
             <tbody>
-              <tr v-for="user in users" :key="user.id">
-                <td>{{ user.name }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.country }}</td>
+              <tr v-for="device in devices" :key="device.id">
+                <td>{{ device.dev_name }}</td>
+                <td>{{ device.dev_min_range }}</td>
+                <td>{{ device.dev_max_range }}</td>
                 <td>
+                  <va-button flat small color="danger" @click="remove(device.id)" class="ma-0">
+                    Deletar
+                  </va-button>
+                </td>
+                <!-- <td>
                   <va-badge :color="getStatusColor(user.status)">
                     {{ user.status }}
                   </va-badge>
-                </td>
+                </td> -->
               </tr>
             </tbody>
-          </table>          
+          </table>
         </div>
       </va-card-content>
     </va-card>
@@ -64,15 +79,26 @@
 
 <script>
 import data from '@/data/tables/markup-table/data.json'
+import { getDevices, deleteDevice } from '@/data/charts/Devices'
 
 export default {
-  data () {
+  data() {
     return {
-      users: data.slice(0, 8),
+      devices: data.slice(0, 8),
     }
   },
+  async mounted() {
+    this.devices = await getDevices()
+  },
   methods: {
-    getStatusColor (status) {
+    createNew() {
+      this.$router.push({ name: 'device' })
+    },
+    async remove(id) {
+      await deleteDevice(id)
+      this.devices = await getDevices()
+    },
+    getStatusColor(status) {
       if (status === 'paid') {
         return 'success'
       }
@@ -88,13 +114,13 @@ export default {
 </script>
 
 <style lang="scss">
-  .markup-tables {
-    .table-wrapper {
-      overflow: auto;
-    }
-
-    .va-table {
-      width: 100%;
-    }
+.markup-tables {
+  .table-wrapper {
+    overflow: auto;
   }
+
+  .va-table {
+    width: 100%;
+  }
+}
 </style>

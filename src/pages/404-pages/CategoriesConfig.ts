@@ -35,7 +35,7 @@ export default [
     ],
   },
   {
-    categoryName: 'Tables',
+    categoryName: 'Dispositivos',
     items: [
       {
         itemName: 'Markup Tables',

@@ -28,13 +28,16 @@ const getSize = () => {
 let generatedData: GeneratedData;
 let firstMonthIndex = 0;
 
-export const getLineChartData = async (themes: ColorThemes, myDate: JSON) => {
+export const getLineChartData = async (themes: ColorThemes, myDate: JSON, device:any) => {
   const size = getSize();
+  console.log(device)
+  debugger;
 
   let {
     data: { data }
   } = await customGet("sensor-values/search-values", {
-    date: myDate
+    date: myDate,
+    dev_id:device
   });
 
   let values = data.values?.values || []
@@ -47,7 +50,7 @@ export const getLineChartData = async (themes: ColorThemes, myDate: JSON) => {
     labels: xValues,
     datasets: [
       {
-        label: "Sensor 1",
+        label: "Sensor",
         backgroundColor: colorToRgba(themes.primary, 0.6),
         borderColor: "transparent",
         data: values.map((value: any) => {
