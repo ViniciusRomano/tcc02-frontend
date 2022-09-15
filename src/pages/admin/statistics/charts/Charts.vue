@@ -140,7 +140,7 @@ export default {
     return {
       date: null,
       data: { count: 0 },
-      device: null,
+      device: {id:null},
       devices: {},
       bubbleChartData: null,
       lineChartData: null,
